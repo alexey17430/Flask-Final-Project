@@ -1,7 +1,6 @@
 from telegram.ext import Updater, MessageHandler, Filters
 from telegram.ext import CallbackContext, CommandHandler
 import time
-from telegram.ext.callbackcontext import CallbackContext
 from telegram import ReplyKeyboardMarkup
 
 TOKEN = '1796047189:AAHjg-N-h51PdSM3np0YnPDdRCYrhgBNjek'
@@ -60,7 +59,7 @@ def command_time(update, context):
     update.message.reply_text(time.asctime().split()[-2])
 
 
-def command_date(update, context: CallbackContext):
+def command_date(update, context):
     sp = time.asctime().split()
     ans = [sp[2], sp[1], sp[4]]
     update.message.reply_text((' ').join(ans))
@@ -72,16 +71,26 @@ def main():
     # Получаем из него диспетчер сообщений.
     dp = updater.dispatcher
 
+    # Создаём обработчик сообщений типа Filters.text
+    # из описанной выше функции echo()
+    # После регистрации обработчика в диспетчере
+    # эта функция будет вызываться при получении сообщения
+    # с типом "текст", т. е. текстовых сообщений.
+    text_handler = MessageHandler(Filters.text, echo)
+
+    # Регистрируем обработчик и команды в диспетчере.
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", command_help))
     dp.add_handler(CommandHandler("time", command_time))
     dp.add_handler(CommandHandler("date", command_date))
     dp.add_handler(CommandHandler("set", command_set_timer))
-    dp.add_handler(MessageHandler(Filters.text, echo))
+    dp.add_handler(text_handler)
 
+    # Магические строчки, которые запускают и останавливают цикл программы
     updater.start_polling()
     updater.idle()
 
 
+# Запускаем функцию main() в случае запуска скрипта.
 if __name__ == '__main__':
     main()
