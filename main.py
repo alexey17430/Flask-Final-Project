@@ -28,6 +28,18 @@ def command_get_dollar(update: Update, context: CallbackContext):
         f'На данный момент один доллар стоит ' + str(convert[0].text) + ' рублей')
 
 
+# команда, которая отправляет пользователю текущий курс евро
+def command_get_euro(update: Update, context: CallbackContext):
+    EURO_RUB = 'https://www.google.com/search?q=%D0%BA%D1%83%D1%80%D1%81+%D0%B5%D0%B2%D1%80%D0%BE&oq=%D0%BA%D1%83%D1%80%D1%81+%D0%B5%D0%B2%D1%80%D0%BE&aqs=chrome..69i57j0i131i433j0j0i433j0i131i433l2j0i457j0j0i131i433j0.3528j1j4&sourceid=chrome&ie=UTF-8'
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36'}
+    full_page = requests.get(EURO_RUB, headers=headers)
+    soup = BeautifulSoup(full_page.content, 'html.parser')
+    convert = soup.findAll("span", {"class": "DFlfde SwHCTb", "data-precision": 2})
+    update.message.reply_text(
+        f'На данный момент один евро стоит ' + str(convert[0].text) + ' рублей')
+
+
 # команда, отправляет пользователю, что умеет данный бот
 def command_help(update: Update, context: CallbackContext):
     print(update.message.chat)
@@ -56,7 +68,7 @@ def main():
     # После регистрации обработчика в диспетчере
     # эта функция будет вызываться при получении сообщения
     # с типом "текст", т. е. текстовых сообщений.
-    text_handler = MessageHandler(Filters.text, echo)
+    #text_handler = MessageHandler(Filters.text, echo)
 
     # Регистрируем обработчик и команды в диспетчере.
     dp.add_handler(CommandHandler("start", start))
@@ -64,7 +76,8 @@ def main():
     dp.add_handler(CommandHandler("time", command_time))
     dp.add_handler(CommandHandler("date", command_date))
     dp.add_handler(CommandHandler("dollar", command_get_dollar))
-    dp.add_handler(text_handler)
+    dp.add_handler(CommandHandler("euro", command_get_euro))
+    #dp.add_handler(text_handler)
 
     # Магические строчки, которые запускают и останавливают цикл программы
     updater.start_polling()
