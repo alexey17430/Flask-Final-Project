@@ -6,6 +6,8 @@ from telegram import Update
 from bs4 import BeautifulSoup
 import requests
 from telegram.ext.callbackcontext import CallbackContext
+import csv
+import random
 
 TOKEN = '1796047189:AAHjg-N-h51PdSM3np0YnPDdRCYrhgBNjek'
 
@@ -40,9 +42,33 @@ def command_get_euro(update: Update, context: CallbackContext):
         f'На данный момент один евро стоит ' + str(convert[0].text) + ' рублей')
 
 
+# команда, добавляющая новую задачу
+def command_new_task(update: Update, context: CallbackContext):
+    file = open(file='all_tasks.csv', encoding='UTF-8', mode='a', newline='')
+    try:
+        task_name = context.args[0]
+    except Exception:
+        update.message.reply_text('Для создания новой задачи вводите /new_task <название задачи>')
+        return None
+    writer = csv.writer(file, delimiter=';',
+                        quoting=csv.QUOTE_MINIMAL)
+    sp = time.asctime().split()
+    date_now = (' ').join([sp[2], sp[1], sp[4]])
+    time_now = time.asctime().split()[-2]
+    row = [random.randint(100000, 999999), task_name, date_now, time_now,
+           update.message.chat.last_name, update.message.chat.first_name]
+
+    writer.writerow(row)
+
+
 # команда, отправляет пользователю, что умеет данный бот
 def command_help(update: Update, context: CallbackContext):
-    print(update.message.chat)
+    update.message.reply_text('Введите:'
+                              '1. /euro - для того, чтобы узнать курс евро'
+                              '2. /dollar - для того, чтобы узнать курс доллара'
+                              '3. /new_task - для того, чтобы добавить новую задачу'
+                              '4. /time - для того, чтобы узнать текущее время'
+                              '5. /date - для того, чтобы узнать текущую дату')
 
 
 # команда, которая в ответ присылает текущее время
@@ -77,6 +103,7 @@ def main():
     dp.add_handler(CommandHandler("date", command_date))
     dp.add_handler(CommandHandler("dollar", command_get_dollar))
     dp.add_handler(CommandHandler("euro", command_get_euro))
+    dp.add_handler(CommandHandler("new_task", command_new_task))
     #dp.add_handler(text_handler)
 
     # Магические строчки, которые запускают и останавливают цикл программы
