@@ -8,6 +8,44 @@ import requests
 from telegram.ext.callbackcontext import CallbackContext
 import csv
 import random
+from flask import render_template, Flask, url_for
+
+app = Flask(__name__)
+
+
+@app.route('/')
+@app.route('/index')
+def index():
+    f"""<!doctype html>
+                    <html lang="en">
+                      <head>
+                        <meta charset="utf-8">
+                        <title>Колонизация</title>
+                        <link rel="stylesheet" href="static/css/style.css">
+                        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+                        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+                      </head>
+                      <body>
+                        <h1>Жди нас, Марс!</h1>
+
+                        <div class="alert alert-primary" role="alert">
+                          Человечество вырастает из детства.
+                        </div>
+                        <div class="alert alert-secondary" role="alert">
+                          Человечеству мала одна планета.
+                        </div>
+                        <div class="alert alert-success" role="alert">
+                          Мы сделаем обитаемыми безжизненные пока планеты.
+                        </div>
+                        <div class="alert alert-danger" role="alert">
+                          И начнем с Марса!
+                        </div>
+                        <div class="alert alert-warning" role="alert">
+                          Присоединяйся!
+                        </div>
+                      </body>
+                    </html>"""
+
 
 TOKEN = '1796047189:AAHjg-N-h51PdSM3np0YnPDdRCYrhgBNjek'
 
@@ -46,7 +84,7 @@ def command_get_euro(update: Update, context: CallbackContext):
 def command_new_task(update: Update, context: CallbackContext):
     file = open(file='all_tasks.csv', encoding='UTF-8', mode='a', newline='')
     try:
-        task_name = context.args[0]
+        task_name = ' '.join(context.args)
     except Exception:
         update.message.reply_text('Для создания новой задачи вводите /new_task <название задачи>')
         return None
@@ -94,7 +132,7 @@ def main():
     # После регистрации обработчика в диспетчере
     # эта функция будет вызываться при получении сообщения
     # с типом "текст", т. е. текстовых сообщений.
-    #text_handler = MessageHandler(Filters.text, echo)
+    # text_handler = MessageHandler(Filters.text, echo)
 
     # Регистрируем обработчик и команды в диспетчере.
     dp.add_handler(CommandHandler("start", start))
@@ -104,7 +142,7 @@ def main():
     dp.add_handler(CommandHandler("dollar", command_get_dollar))
     dp.add_handler(CommandHandler("euro", command_get_euro))
     dp.add_handler(CommandHandler("new_task", command_new_task))
-    #dp.add_handler(text_handler)
+    # dp.add_handler(text_handler)
 
     # Магические строчки, которые запускают и останавливают цикл программы
     updater.start_polling()
@@ -113,4 +151,5 @@ def main():
 
 # Запускаем функцию main() в случае запуска скрипта.
 if __name__ == '__main__':
-    main()
+    app.run(port=8080, host='127.0.0.1')
+    #main()
